@@ -5,6 +5,7 @@ import pandas as pd
 import datetime as dt
 from webdriver_manager.chrome import ChromeDriverManager
 
+
 def scrape_all():
     # Initiate headless driver for deployment
     executable_path = {'executable_path': ChromeDriverManager().install()}
@@ -18,7 +19,8 @@ def scrape_all():
         "news_paragraph": news_paragraph,
         "featured_image": featured_image(browser),
         "facts": mars_facts(),
-        "last_modified": dt.datetime.now()
+        "last_modified": dt.datetime.now(),
+        "hemispheres":hemispheres(browser)
     }
 
     # Stop webdriver and return data
@@ -97,6 +99,27 @@ def mars_facts():
     # Convert dataframe into HTML format, add bootstrap    
     return df.to_html(classes="table table-striped")
 
+def hemispheres(browser):
+    url= "https://marshemispheres.com/"
+    browser.visit(url+"index.html")
+    hemisphere_image_urls = []
+    products = browser.find_by_css('div.item')
+
+    for product in range(len(products)):
+        hemispheres ={}
+    
+        browser.find_by_css('a.product-item img')[product].click()
+        photo = browser.links.find_by_text('Sample').first
+        hemispheres['Url']=photo['href']
+        
+        browser.back()
+        
+        hemispheres['Title'] =browser.find_by_css('h3')[product].text
+        
+        hemisphere_image_urls.append(hemispheres)
+    return hemisphere_image_urls
+
 if __name__ == "__main__":
     # If running as script, print scraped data
     print(scrape_all())
+
